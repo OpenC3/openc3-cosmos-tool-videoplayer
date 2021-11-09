@@ -24,13 +24,14 @@
       v-if="source.type === 'static'"
       :key="source.url"
       width="100%"
+      :style="videoStyle"
       controls
       autoplay
       loop
     >
       <source :src="source.url" cross-origin="anonymous" type="video/mp4" />
     </video>
-    <video v-else ref="video" width="100%" controls />
+    <video v-else ref="video" width="100%" :style="videoStyle" controls />
     <v-dialog v-model="uploadDialog" max-width="600">
       <v-card class="pa-3">
         <v-card-title>
@@ -87,7 +88,8 @@ import { createPlaylistBlobUrl, pLoader } from './playlistProcessing'
 import axios from '@cosmosc2/tool-common/src/services/axios.js'
 
 const hlsPlaylistFilenameRegex = /\.m3u8$/
-const urlRegex = /^([-a-zA-Z]+:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
+const urlRegex =
+  /^([-a-zA-Z]+:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
 
 export default {
   components: {
@@ -122,6 +124,9 @@ export default {
     },
     toolName: function () {
       return 'video-player'
+    },
+    videoStyle: function () {
+      return 'max-height: calc(100vh - 118px)'
     },
     menus: function () {
       return [
