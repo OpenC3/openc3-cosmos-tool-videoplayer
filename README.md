@@ -1,8 +1,10 @@
 # cosmosc2-tool-videoplayer
 
+Check out [this gist](https://gist.github.com/ryan-pratt-ball/18f4c69a96c2c88780211ec3848e52b4) to see how this fits into an end-to-end video streaming demo in COSMOS 5.
+
 This plugin provides COSMOS 5 with an integrated video player capable of playing back most common video file types, as well as HLS streams. Included is the top-level tool and a widget that can be used in TlmViewer screens.
 
-[Documentation](http://cosmosrb.com)
+[Documentation](http://cosmosc2.com)
 
 ![demo.png](demo.png)
 
