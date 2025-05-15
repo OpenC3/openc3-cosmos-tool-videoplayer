@@ -15,12 +15,17 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2025, OpenC3, Inc.
+# All Rights Reserved
+#
+# This file may also be used under the terms of a commercial license 
+# if purchased from OpenC3, Inc.
 -->
 
 <template>
-  <div>
-    <v-app id="innerapp">
-      <router-view />
-    </v-app>
-  </div>
+  <v-app id="innerapp">
+    <router-view></router-view>
+  </v-app>
 </template>

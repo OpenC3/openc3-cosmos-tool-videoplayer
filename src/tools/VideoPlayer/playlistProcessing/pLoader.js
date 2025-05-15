@@ -15,17 +15,24 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2025, OpenC3, Inc.
+# All Rights Reserved
+#
+# This file may also be used under the terms of a commercial license
+# if purchased from OpenC3, Inc.
 */
 
 import Hls from 'hls.js'
-import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
+import { OpenC3Api } from '@openc3/js-common/services'
 import { createPlaylistBlobUrl } from '.'
 
 export default class extends Hls.DefaultConfig.loader {
   constructor(config) {
     super(config)
     this.blobUrl = null // Used to revoke object URLs created by the loader
-    this.api = new CosmosApi()
+    this.api = new OpenC3Api()
     const load = this.load.bind(this)
     this.load = function (context, config, callbacks) {
       if (context.type == 'manifest') {

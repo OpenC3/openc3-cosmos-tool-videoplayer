@@ -15,23 +15,37 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2025, OpenC3, Inc.
+# All Rights Reserved
+#
+# This file may also be used under the terms of a commercial license
+# if purchased from OpenC3, Inc.
 */
 
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import { prependBasePath } from '@openc3/js-common/utils'
+import { NotFound } from '@openc3/vue-common/components'
 import VideoPlayer from './tools/VideoPlayer/VideoPlayer'
 
-Vue.use(Router)
+const routes = [
+  {
+    path: '',
+    name: 'VideoPlayer',
+    component: VideoPlayer,
+    meta: { title: 'Video Player', icon: 'mdi-video-box' },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+  },
+]
 
-export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'VideoPlayer',
-      component: VideoPlayer,
-      meta: { title: 'Video Player', icon: 'mdi-video-box' },
-    },
-  ],
+routes.forEach(prependBasePath)
+
+export default createRouter({
+  history: createWebHistory(),
+  routes,
 })

@@ -17,16 +17,23 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+# Modified by OpenC3, Inc.
+# All changes Copyright 2025, OpenC3, Inc.
+# All Rights Reserved
+#
+# This file may also be used under the terms of a commercial license
+# if purchased from OpenC3, Inc.
+
 # Create the overall gemspec
 spec = Gem::Specification.new do |s|
-  s.name = 'cosmosc2-tool-videoplayer'
-  s.summary = 'Ball Aerospace COSMOS'
+  s.name = 'openc3-cosmos-tool-videoplayer'
+  s.summary = 'Video Player Tool for OpenC3 COSMOS'
   s.description = <<-EOF
-    This plugin adds the COSMOS VideoPlayer tool
+    This plugin adds the COSMOS Video Player tool
   EOF
   s.authors = ['Ryan Melton', 'Jason Thomas', 'Gerhard van Andel', 'Ryan Pratt']
-  s.email = ['ryan.melton@ballaerospace.com', 'jason.thomas2@ballaerospace.com', 'gerhard.vanandel@ballaerospace.com', 'ryan.pratt@ballaerospace.com']
-  s.homepage = 'https://github.com/BallAerospace/cosmosc2-tool-videoplayer'
+  s.email = ['ryan@openc3.com', 'jason@openc3.com', 'gerhard.vanandel@ballaerospace.com', 'ryan.pratt@openc3.com']
+  s.homepage = 'https://github.com/OpenC3/openc3-cosmos-tool-videoplayer'
 
   s.platform = Gem::Platform::RUBY
 

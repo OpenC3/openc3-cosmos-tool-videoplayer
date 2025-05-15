@@ -15,77 +15,79 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2025, OpenC3, Inc.
+# All Rights Reserved
+#
+# This file may also be used under the terms of a commercial license
+# if purchased from OpenC3, Inc.
 -->
 
 <template>
-  <div>
-    <top-bar v-if="!widgetConfig" :menus="menus" :title="title" />
-    <video
-      v-if="source.type === 'static'"
-      :key="source.url"
-      width="100%"
-      :style="videoStyle"
-      controls
-      autoplay
-      loop
-    >
-      <source :src="source.url" cross-origin="anonymous" type="video/mp4" />
-    </video>
-    <video v-else ref="video" width="100%" :style="videoStyle" controls />
-    <v-dialog v-model="uploadDialog" max-width="600">
-      <v-card class="pa-3">
-        <v-card-title>
-          Upload a video to be played back in COSMOS
-        </v-card-title>
-        <v-card-text>
-          <v-row no-gutters align="center">
-            <v-col cols="8">
-              <v-file-input
-                v-model="file"
-                accept="video/*"
-                show-size
-                label="Click to select video file"
-              />
-            </v-col>
-            <v-col cols="2" class="pl-2">
-              <v-btn
-                color="primary"
-                class="mr-4"
-                @click="uploadFile"
-                :loading="uploading"
-              >
-                Upload
-                <v-icon right dark>mdi-cloud-upload</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <open-config-dialog
-      v-if="openConfig"
-      v-model="openConfig"
-      :tool="toolName"
-      @success="openConfiguration($event)"
-    />
-    <save-config-dialog
-      v-if="saveConfig"
-      v-model="saveConfig"
-      :tool="toolName"
-      @success="saveConfiguration($event)"
-    />
-  </div>
+  <top-bar v-if="!widgetConfig" :menus="menus" :title="title" />
+  <video
+    v-if="source.type === 'static'"
+    :key="source.url"
+    width="100%"
+    :style="videoStyle"
+    controls
+    autoplay
+    loop
+  >
+    <source :src="source.url" cross-origin="anonymous" type="video/mp4" />
+  </video>
+  <video v-else ref="video" width="100%" :style="videoStyle" controls />
+  <v-dialog v-model="uploadDialog" max-width="600">
+    <v-card class="pa-3">
+      <v-card-title>
+        Upload a video to be played back in COSMOS
+      </v-card-title>
+      <v-card-text>
+        <v-row no-gutters align="center">
+          <v-col cols="8">
+            <v-file-input
+              v-model="file"
+              accept="video/*"
+              show-size
+              label="Click to select video file"
+            />
+          </v-col>
+          <v-col cols="2" class="pl-2">
+            <v-btn
+              color="primary"
+              class="mr-4"
+              @click="uploadFile"
+              :loading="uploading"
+            >
+              Upload
+              <v-icon right dark>mdi-cloud-upload</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+  <open-config-dialog
+    v-if="openConfig"
+    v-model="openConfig"
+    :tool="toolName"
+    @success="openConfiguration($event)"
+  />
+  <save-config-dialog
+    v-if="saveConfig"
+    v-model="saveConfig"
+    :tool="toolName"
+    @success="saveConfiguration($event)"
+  />
 </template>
 
 <script>
 import Hls from 'hls.js'
-import Api from '@cosmosc2/tool-common/src/services/api'
-import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
-import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
-import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDialog'
-import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
+import { OpenConfigDialog, SaveConfigDialog, TopBar } from '@openc3/vue-common/components'
+import { Api, axios, OpenC3Api } from '@openc3/js-common/services'
+
 import { createPlaylistBlobUrl, pLoader } from './playlistProcessing'
-import axios from '@cosmosc2/tool-common/src/services/axios.js'
 
 const hlsPlaylistFilenameRegex = /\.m3u8$/
 const urlRegex =
@@ -105,7 +107,7 @@ export default {
   },
   data: function () {
     return {
-      api: new CosmosApi(),
+      api: new OpenC3Api(),
       file: null,
       hls: new Hls({
         pLoader,
