@@ -48,7 +48,7 @@ export default class extends Hls.DefaultConfig.loader {
             context.url = this.blobUrl = createPlaylistBlobUrl(
               JSON.parse(toolConfig).indexes[
                 context.url.substring(context.url.lastIndexOf('/') + 1)
-              ]
+              ],
             )
             load(context, config, callbacks)
           })

@@ -23,6 +23,6 @@ export default function (encoded) {
   return URL.createObjectURL(
     new Blob(decodePlaylist(encoded), {
       type: 'application/x-mpegURL',
-    })
+    }),
   )
 }

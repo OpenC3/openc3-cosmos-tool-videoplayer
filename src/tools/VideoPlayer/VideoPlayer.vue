@@ -40,9 +40,7 @@
   <video v-else ref="video" width="100%" :style="videoStyle" controls />
   <v-dialog v-model="uploadDialog" max-width="600">
     <v-card class="pa-3">
-      <v-card-title>
-        Upload a video to be played back in COSMOS
-      </v-card-title>
+      <v-card-title> Upload a video to be played back in COSMOS </v-card-title>
       <v-card-text>
         <v-row no-gutters align="center">
           <v-col cols="8">
@@ -57,8 +55,8 @@
             <v-btn
               color="primary"
               class="mr-4"
-              @click="uploadFile"
               :loading="uploading"
+              @click="uploadFile"
             >
               Upload
               <v-icon right dark>mdi-cloud-upload</v-icon>
@@ -68,6 +66,7 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+  <source-url-dialog v-model="sourceDialog" @confirm="handleSourceConfirm" />
   <open-config-dialog
     v-if="openConfig"
     v-model="openConfig"
@@ -84,10 +83,14 @@
 
 <script>
 import Hls from 'hls.js'
-import { OpenConfigDialog, SaveConfigDialog, TopBar } from '@openc3/vue-common/components'
+import {
+  OpenConfigDialog,
+  SaveConfigDialog,
+  TopBar,
+} from '@openc3/vue-common/components'
 import { Api, axios, OpenC3Api } from '@openc3/js-common/services'
-
 import { createPlaylistBlobUrl, pLoader } from './playlistProcessing'
+import SourceUrlDialog from './SourceUrlDialog.vue'
 
 const hlsPlaylistFilenameRegex = /\.m3u8$/
 const urlRegex =
@@ -98,6 +101,7 @@ export default {
     TopBar,
     OpenConfigDialog,
     SaveConfigDialog,
+    SourceUrlDialog,
   },
   props: {
     widgetConfig: {
@@ -166,30 +170,6 @@ export default {
     },
   },
   watch: {
-    sourceDialog: function (val) {
-      if (val) {
-        this.$dialog
-          .prompt(
-            {
-              title: 'Change source',
-              body: 'Switch the player to a different source URL',
-            },
-            {
-              okText: 'Switch',
-              cancelText: 'Cancel',
-              promptHelp:
-                'Type or paste the URL to the video or stream and click "[+:okText]"',
-            }
-          )
-          .then((dialog) => {
-            this.source = {
-              url: dialog.data,
-              type: this.hlsOrStatic(dialog.data),
-            }
-            this.sourceDialog = false
-          })
-      }
-    },
     source: {
       immediate: true,
       handler: function (newVal, oldVal) {
@@ -216,17 +196,23 @@ export default {
       this.openConfiguration(localStorage['lastconfig__video_player'])
     }
   },
-  beforeDestroy: function () {
+  beforeUnmount: function () {
     this.revokeUrls()
   },
   methods: {
+    handleSourceConfirm: function (url) {
+      this.source = {
+        url: url,
+        type: this.hlsOrStatic(url),
+      }
+    },
     hlsOrStatic: function (url) {
       // blob type has no extension, but we already know if we're using a blob or not
       return url.match(hlsPlaylistFilenameRegex) ? 'hls' : 'static'
     },
     loadFile: async function (filename) {
       const { data: presignedRequest } = await Api.get(
-        `/cosmos-api/storage/download/${filename}`
+        `/cosmos-api/storage/download/${filename}`,
       )
       this.source = {
         url: presignedRequest.url,
@@ -237,7 +223,7 @@ export default {
       this.uploading = true
       try {
         const { data: presignedRequest } = await Api.get(
-          `/cosmos-api/storage/upload/${this.file.name}`
+          `/cosmos-api/storage/upload/${this.file.name}`,
         )
         const response = await axios({
           ...presignedRequest,
@@ -271,7 +257,7 @@ export default {
           "Can't save this configuration because it is created by the stream transcoder",
           {
             okText: 'OK',
-          }
+          },
         )
       } else {
         this.saveConfig = true

@@ -1,5 +1,5 @@
 TOOL videoplayer "Video Player"
-  INLINE_URL js/app.js
+  INLINE_URL main.js
   ICON mdi-video-box
 
-WIDGET VIDEOPLAYER
+# WIDGET VIDEOPLAYER
