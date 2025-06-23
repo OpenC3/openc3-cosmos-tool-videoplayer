@@ -37,13 +37,12 @@ spec = Gem::Specification.new do |s|
 
   s.platform = Gem::Platform::RUBY
 
-  time = Time.now.strftime("%Y%m%d%H%M%S")
   if ENV['VERSION']
-    s.version = ENV['VERSION'].dup + ".#{time}"
+    s.version = ENV['VERSION'].dup
   else
-    s.version = '0.0.0' + ".#{time}"
+    s.version = '0.0.0'
   end
-  s.license = 'AGPL-3.0'
+  s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
   s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
 end
