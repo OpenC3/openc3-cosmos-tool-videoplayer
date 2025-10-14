@@ -10,15 +10,15 @@ This plugin provides COSMOS 5 with an integrated video player capable of playing
 
 ## Installation
 
-[Yarn](https://classic.yarnpkg.com/lang/en/docs/install) and [rake](https://rubygems.org/gems/rake) must be installed to build this plugin. To build the plugin, clone this repository and run the following commands:
+[pnpm](https://pnpm.io/installation) (`pnpm@latest-10`) and [rake](https://rubygems.org/gems/rake) must be installed to build this plugin. To build the plugin, clone this repository and run the following commands:
 
 ```
-> yarn
-> yarn build
+> pnpm install
+> pnpm build
 > rake build VERSION=5.0.0
 ```
 
-*Note: If you only want the tool, you can run `yarn build-tool` instead of `yarn build`.*
+*Note: If you only want the tool, you can run `pnpm build-tool` instead of `pnpm build`.*
 
 The `rake` command will create a .gem file which can be uploaded to COSMOS via the plugins tab in the admin console to install the plugin.
 
