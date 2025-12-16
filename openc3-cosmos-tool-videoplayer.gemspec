@@ -44,5 +44,12 @@ spec = Gem::Specification.new do |s|
   end
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
-  s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
+  s.files = Dir.glob("{targets,lib,procedures,public,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
+
+  s.metadata = {
+    "openc3_store_title" => "Video Player Tool",
+    "openc3_store_description" => "This plugin provides COSMOS 6 with an integrated video player capable of playing back most common video file types, as well as HLS streams. Included is the top-level tool and a widget that can be used in TlmViewer screens.",
+    "openc3_store_keywords" => "tool, video, streaming",
+    "openc3_cosmos_minimum_version" => "6.0.0"
+  }
 end
