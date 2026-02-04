@@ -212,7 +212,8 @@ export default {
     },
     loadFile: async function (filename) {
       const { data: presignedRequest } = await Api.get(
-        `/cosmos-api/storage/download/${filename}`,
+        `/openc3-api/storage/download/${filename}`,
+        { params: { bucket: 'OPENC3_CONFIG_BUCKET' } },
       )
       this.source = {
         url: presignedRequest.url,
@@ -223,7 +224,8 @@ export default {
       this.uploading = true
       try {
         const { data: presignedRequest } = await Api.get(
-          `/cosmos-api/storage/upload/${this.file.name}`,
+          `/openc3-api/storage/upload/${this.file.name}`,
+          { params: { bucket: 'OPENC3_CONFIG_BUCKET' } },
         )
         const response = await axios({
           ...presignedRequest,
