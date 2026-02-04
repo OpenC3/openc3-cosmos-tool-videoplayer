@@ -27,15 +27,16 @@
 # Create the overall gemspec
 spec = Gem::Specification.new do |s|
   s.name = 'openc3-cosmos-tool-videoplayer'
-  s.summary = 'Video Player Tool for OpenC3 COSMOS'
+  s.summary = 'Video Player Tool'
   s.description = <<-EOF
-    This plugin adds the COSMOS Video Player tool
+    This plugin provides COSMOS 6 with an integrated video player capable of playing back most common video file types, as well as HLS streams. Included is the top-level tool and a widget that can be used in TlmViewer screens.
   EOF
   s.authors = ['Ryan Melton', 'Jason Thomas', 'Gerhard van Andel', 'Ryan Pratt']
   s.email = ['ryan@openc3.com', 'jason@openc3.com', 'gerhard.vanandel@ballaerospace.com', 'ryan.pratt@openc3.com']
   s.homepage = 'https://github.com/OpenC3/openc3-cosmos-tool-videoplayer'
 
   s.platform = Gem::Platform::RUBY
+  s.required_ruby_version = '>= 3.0.0'
 
   if ENV['VERSION']
     s.version = ENV['VERSION'].dup
@@ -44,5 +45,11 @@ spec = Gem::Specification.new do |s|
   end
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
-  s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
+  s.files = Dir.glob("{targets,lib,procedures,public,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
+
+  s.metadata = {
+    "openc3_store_keywords" => "tool, video, streaming",
+    "source_code_uri" => "https://github.com/OpenC3/openc3-cosmos-tool-videoplayer",
+    "openc3_cosmos_minimum_version" => "6.0.0"
+  }
 end
