@@ -52,17 +52,15 @@ jobs:
       - name: Build gem
         run: rake build VERSION=${{ github.event.inputs.version }}
 
-      - name: Find and set gem filename
-        id: gem_file
+      - name: Verify gem file exists
         run: |
-          GEM_FILE=$(ls openc3-cosmos-tool-videoplayer-*.gem)
-          echo "gem_filename=$GEM_FILE" >> $GITHUB_OUTPUT
-          echo "Found gem file: $GEM_FILE"
+          ls -lh *.gem
+          echo "Expected filename: openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem"
 
       - name: Calculate checksum
         id: checksum
         run: |
-          CHECKSUM=$(shasum -a 256 ${{ steps.gem_file.outputs.gem_filename }} | cut -d' ' -f1)
+          CHECKSUM=$(shasum -a 256 openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem | cut -d' ' -f1)
           echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
           echo "Checksum: $CHECKSUM"
 
@@ -80,7 +78,7 @@ jobs:
         run: |
           response=$(curl -s -w "\n%{http_code}" -X POST "https://store.openc3.com/api/v1.1/update_plugin" \
             -H "Authorization: Bearer $OPENC3_API_TOKEN" \
-            -F "gem_file=@${{ steps.gem_file.outputs.gem_filename }}" \
+            -F "gem_file=@openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem" \
             -F "checksum=${{ steps.checksum.outputs.checksum }}")
 
           http_code=$(echo "$response" | tail -n1)
@@ -97,7 +95,6 @@ jobs:
           echo "Plugin version ${{ github.event.inputs.version }} successfully uploaded to OpenC3 App Store!"
 
       - name: Create GitHub Release
-        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,6 +114,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.gem_file.outputs.gem_filename }}
-          asset_name: ${{ steps.gem_file.outputs.gem_filename }}
+          asset_path: ./openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem
+          asset_name: openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem
           asset_content_type: application/octet-stream
