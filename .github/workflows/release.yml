@@ -1,0 +1,114 @@
+name: Release COSMOS Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+        type: string
+      deploy_to_store:
+        description: 'Deploy to OpenC3 App Store'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate semver format
+        run: |
+          if ! echo "${{ github.event.inputs.version }}" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$'; then
+            echo "Error: Version must be a valid semver (e.g., 1.2.0, 1.2.0-beta.1)"
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm run build
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        with:
+          ruby-version: '3.2'
+
+      - name: Build gem
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: rake build
+
+      - name: Calculate checksum
+        id: checksum
+        run: |
+          CHECKSUM=$(shasum -a 256 openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem | cut -d' ' -f1)
+          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+          echo "Checksum: $CHECKSUM"
+
+      - name: Create and push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}"
+
+      - name: Upload to OpenC3 App Store
+        if: ${{ github.event.inputs.deploy_to_store == 'true' }}
+        env:
+          OPENC3_API_TOKEN: ${{ secrets.OPENC3_API_TOKEN }}
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST "https://store.openc3.com/api/v1.1/update_plugin" \
+            -H "Authorization: Bearer $OPENC3_API_TOKEN" \
+            -F "gem_file=@openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem" \
+            -F "checksum=${{ steps.checksum.outputs.checksum }}")
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response body:"
+          echo "$body" | jq '.' || echo "$body"
+
+          if [ "$http_code" != "201" ]; then
+            echo "Error: Upload failed with HTTP status $http_code"
+            exit 1
+          fi
+
+          echo "Plugin version ${{ github.event.inputs.version }} successfully uploaded to OpenC3 App Store!"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          body: |
+            Release of openc3-cosmos-tool-videoplayer version ${{ github.event.inputs.version }}
+
+            This plugin has been submitted to the OpenC3 App Store and is pending approval.
+          draft: false
+          prerelease: false
+
+      - name: Upload gem to GitHub Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem
+          asset_name: openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem
+          asset_content_type: application/octet-stream
