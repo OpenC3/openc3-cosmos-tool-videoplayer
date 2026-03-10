@@ -50,12 +50,9 @@ jobs:
           ruby-version: '3.2'
 
       - name: Build gem
-        run: rake build VERSION=${{ github.event.inputs.version }}
-
-      - name: Verify gem file exists
-        run: |
-          ls -lh *.gem
-          echo "Expected filename: openc3-cosmos-tool-videoplayer-${{ github.event.inputs.version }}.gem"
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: rake build
 
       - name: Calculate checksum
         id: checksum
