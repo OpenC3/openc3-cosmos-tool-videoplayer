@@ -70,13 +70,13 @@
   <open-config-dialog
     v-if="openConfig"
     v-model="openConfig"
-    :tool="toolName"
+    :config-key="toolName"
     @success="openConfiguration($event)"
   />
   <save-config-dialog
     v-if="saveConfig"
     v-model="saveConfig"
-    :tool="toolName"
+    :config-key="toolName"
     @success="saveConfiguration($event)"
   />
 </template>
@@ -93,8 +93,6 @@ import { createPlaylistBlobUrl, pLoader } from './playlistProcessing'
 import SourceUrlDialog from './SourceUrlDialog.vue'
 
 const hlsPlaylistFilenameRegex = /\.m3u8$/
-const urlRegex =
-  /^([-a-zA-Z]+:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
 
 export default {
   components: {
@@ -265,7 +263,11 @@ export default {
         this.saveConfig = true
       }
     },
-    saveConfiguration: async function (name, content = this.source.url) {
+    saveConfiguration: async function (
+      name,
+      content = JSON.stringify({ url: this.source.url }),
+    ) {
+      // content must be valid JSON: the backend JSON.parses it (local_mode save_tool_config)
       localStorage['lastconfig__video_player'] = name
       await this.api.save_config(this.toolName, name, content)
     },
@@ -274,23 +276,21 @@ export default {
       if (remember) localStorage['lastconfig__video_player'] = name
       const response = await this.api.load_config(this.toolName, name)
       if (response) {
-        if (response.match(urlRegex)) {
+        const json = JSON.parse(response)
+        if ('manifest' in json) {
+          // response is encoded m3u8 files
+          this.source = {
+            url: createPlaylistBlobUrl(json.manifest),
+            type: 'blob',
+          }
+        } else if ('filename' in json) {
+          // response is a file in S3 that needs to be loaded with a presigned request
+          await this.loadFile(json.filename)
+        } else if ('url' in json) {
           // response is something that's hosted elsewhere
           this.source = {
-            url: response,
-            type: this.hlsOrStatic(response),
-          }
-        } else {
-          const json = JSON.parse(response)
-          if ('manifest' in json) {
-            // response is encoded m3u8 files
-            this.source = {
-              url: createPlaylistBlobUrl(json.manifest),
-              type: 'blob',
-            }
-          } else {
-            // response is a file in S3 that needs to be loaded with a presigned request
-            await this.loadFile(json.filename)
+            url: json.url,
+            type: this.hlsOrStatic(json.url),
           }
         }
       }
@@ -303,3 +303,9 @@ export default {
   },
 }
 </script>
+
+<style>
+#openc3-menu .app-title {
+  font-size: 2rem;
+}
+</style>

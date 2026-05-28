@@ -35,24 +35,28 @@ export default class extends Hls.DefaultConfig.loader {
     this.api = new OpenC3Api()
     const load = this.load.bind(this)
     this.load = function (context, config, callbacks) {
-      if (context.type == 'manifest') {
-        load(context, config, callbacks) // VideoPlayer.vue is responsible for processing the manifest
-      } else {
-        // Get the playlist data from redis
-        this.api
-          .load_config('video-player', localStorage['lastconfig__video_player']) // That gets set by VideoPlayer.vue when the user changes streams
-          .then((toolConfig) => {
-            // Revoke the old URL because it's no longer needed
-            URL.revokeObjectURL(this.blobUrl)
-            // Create a blob for the playlist and load that instead
-            context.url = this.blobUrl = createPlaylistBlobUrl(
-              JSON.parse(toolConfig).indexes[
-                context.url.substring(context.url.lastIndexOf('/') + 1)
-              ],
-            )
-            load(context, config, callbacks)
-          })
+      // For direct external HLS streams let hls.js fetch the variant playlists itself.
+      const cachedConfigName = localStorage['lastconfig__video_player']
+      const isExternalUrl =
+        typeof context.url === 'string' && /^https?:\/\//i.test(context.url)
+      if (context.type == 'manifest' || !cachedConfigName || isExternalUrl) {
+        load(context, config, callbacks)
+        return
       }
+      // Get the playlist data from redis
+      this.api
+        .load_config('video-player', cachedConfigName) // That gets set by VideoPlayer.vue when the user changes streams
+        .then((toolConfig) => {
+          // Revoke the old URL because it's no longer needed
+          URL.revokeObjectURL(this.blobUrl)
+          // Create a blob for the playlist and load that instead
+          context.url = this.blobUrl = createPlaylistBlobUrl(
+            JSON.parse(toolConfig).indexes[
+              context.url.substring(context.url.lastIndexOf('/') + 1)
+            ],
+          )
+          load(context, config, callbacks)
+        })
     }
   }
 }
